@@ -15,7 +15,7 @@ import cors from "cors";
 dotenv.config();
 
 const app = express({ limit: "10mb" });
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 const corsOptions = {
   origin: process.env.CLIENT_URL,
   credentials: true,
