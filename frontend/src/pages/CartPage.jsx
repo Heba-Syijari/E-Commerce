@@ -3,9 +3,9 @@ import { useCartStore } from "../stores/useCartStore";
 import { motion } from "framer-motion";
 import { ShoppingCart } from "lucide-react";
 import CartItem from "../components/CartItem";
-// import PeopleAlsoBought from "../components/PeopleAlsoBought";
-// import OrderSummary from "../components/OrderSummary";
-// import GiftCouponCard from "../components/GiftCouponCard";
+import PeopleAlsoBought from "../components/PeopleAlsoBought";
+import OrderSummary from "../components/OrderSummary";
+import GiftCouponCard from "../components/GiftCouponCard";
 
 const CartPage = () => {
   const { cart } = useCartStore();
@@ -29,7 +29,7 @@ const CartPage = () => {
                 ))}
               </div>
             )}
-            {/* {cart.length > 0 && <PeopleAlsoBought />} */}
+            {cart.length > 0 && <PeopleAlsoBought />}
           </motion.div>
 
           {cart.length > 0 && (
@@ -39,8 +39,8 @@ const CartPage = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              {/* <OrderSummary />
-							<GiftCouponCard /> */}
+              <OrderSummary />
+              <GiftCouponCard />
             </motion.div>
           )}
         </div>
@@ -63,7 +63,7 @@ const EmptyCartUI = () => (
       Looks like you {"haven't"} added anything to your cart yet.
     </p>
     <Link
-      className="mt-4 rounded-md bg-emerald-500 px-6 py-2 text-white transition-colors hover:bg-emerald-600"
+      className="mt-4 rounded-md bg-cyan-500 px-6 py-2 text-white transition-colors hover:bg-cyan-600"
       to="/"
     >
       Start Shopping
