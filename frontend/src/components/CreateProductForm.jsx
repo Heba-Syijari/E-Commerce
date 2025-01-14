@@ -1,7 +1,9 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { PlusCircle, Upload, Loader } from "lucide-react";
 import { useProductStore } from "../stores/useProductStore";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const categories = [
   "jeans",
@@ -13,30 +15,36 @@ const categories = [
   "bags",
 ];
 
+const productSchema = z.object({
+  name: z.string().min(3, "Product name must be at least 3 characters."),
+  description: z
+    .string()
+    .min(10, "Description must be at least 10 characters."),
+  price: z.coerce.number().min(0, "Price must be a positive number."),
+  category: z.string().nonempty("Category is required."),
+  image: z.string().nonempty("Image is required."),
+});
+
 const CreateProductForm = () => {
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    description: "",
-    price: "",
-    category: "",
-    image: "",
+  const { register, handleSubmit, formState, setValue } = useForm({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      price: "",
+      category: "",
+      image: "",
+    },
   });
 
+  const { errors } = formState;
   const { createProduct, loading } = useProductStore();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     try {
-      await createProduct(newProduct);
-      setNewProduct({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-        image: "",
-      });
-    } catch {
-      console.log("error creating a product");
+      await createProduct(data);
+    } catch (err) {
+      console.log("Error creating product:", err);
     }
   };
 
@@ -44,12 +52,8 @@ const CreateProductForm = () => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-
-      reader.onloadend = () => {
-        setNewProduct({ ...newProduct, image: reader.result });
-      };
-
-      reader.readAsDataURL(file); // base64
+      reader.onloadend = () => setValue("image", reader.result);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -64,7 +68,7 @@ const CreateProductForm = () => {
         Create New Product
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label
             htmlFor="name"
@@ -76,15 +80,14 @@ const CreateProductForm = () => {
             type="text"
             id="name"
             name="name"
-            value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
+            {...register("name")}
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2
 						 px-3 text-white focus:outline-none focus:ring-2
 						focus:ring-cyan-500 focus:border-cyan-500"
-            required
           />
+          {errors.name && (
+            <p className="text-red-500 text-sm">{errors.name.message}</p>
+          )}
         </div>
 
         <div>
@@ -97,16 +100,15 @@ const CreateProductForm = () => {
           <textarea
             id="description"
             name="description"
-            value={newProduct.description}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, description: e.target.value })
-            }
+            {...register("description")}
             rows="3"
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm
 						 py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 
 						 focus:border-cyan-500"
-            required
           />
+          {errors.description && (
+            <p className="text-red-500 text-sm">{errors.description.message}</p>
+          )}
         </div>
 
         <div>
@@ -120,16 +122,15 @@ const CreateProductForm = () => {
             type="number"
             id="price"
             name="price"
-            value={newProduct.price}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, price: e.target.value })
-            }
+            {...register("price")}
             step="0.01"
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm 
 						py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500
 						 focus:border-cyan-500"
-            required
           />
+          {errors.price && (
+            <p className="text-red-500 text-sm">{errors.price.message}</p>
+          )}
         </div>
 
         <div>
@@ -142,14 +143,10 @@ const CreateProductForm = () => {
           <select
             id="category"
             name="category"
-            value={newProduct.category}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, category: e.target.value })
-            }
+            {...register("category")}
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md
 						 shadow-sm py-2 px-3 text-white focus:outline-none 
 						 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
-            required
           >
             <option value="">Select a category</option>
             {categories.map((category) => (
@@ -158,6 +155,9 @@ const CreateProductForm = () => {
               </option>
             ))}
           </select>
+          {errors.category && (
+            <p className="text-red-500 text-sm">{errors.category.message}</p>
+          )}
         </div>
 
         <div className="mt-1 flex items-center">
@@ -175,8 +175,8 @@ const CreateProductForm = () => {
             <Upload className="h-5 w-5 inline-block mr-2" />
             Upload Image
           </label>
-          {newProduct.image && (
-            <span className="ml-3 text-sm text-gray-400">Image uploaded </span>
+          {errors.image && (
+            <p className="text-red-500 text-sm">{errors.image.message}</p>
           )}
         </div>
 
