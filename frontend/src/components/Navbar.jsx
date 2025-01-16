@@ -5,7 +5,8 @@ import { useCartStore } from "../stores/useCartStore";
 
 const Navbar = () => {
   const { user, logout } = useUserStore();
-  const isAdmin = user?.role === "admin";
+  // const isAdmin = user?.role === "admin";
+  const isAdmin = true;
   const { cart } = useCartStore();
 
   return (
@@ -16,7 +17,12 @@ const Navbar = () => {
             to="/"
             className="text-2xl font-bold text-cyan-400 items-center space-x-2 flex"
           >
-            Trendy
+            {/* <img
+              src="../../public/logo.png"
+              alt="Logo"
+              className="w-9 h-9 object-contain"
+            /> */}
+            <span>Trendy</span>
           </Link>
 
           <nav className="flex flex-wrap items-center gap-4">
